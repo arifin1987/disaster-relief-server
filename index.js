@@ -7,7 +7,7 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.59h68ks.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -26,8 +26,43 @@ async function run() {
     const donationsCollection = client
       .db("disaster_relief")
       .collection("donations");
+    const reviewCollection = client.db("disaster_relief").collection("reviews");
     app.get("/donations", async (req, res) => {
       const result = await donationsCollection.find().toArray();
+      res.send(result);
+    });
+
+    app.get("/donations/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await donationsCollection.findOne(query);
+      res.send(result);
+    });
+    app.post("/donations", async (req, res) => {
+      const donation = req.body;
+      const result = await donationsCollection.insertOne(donation);
+      res.send(result);
+    });
+
+    app.delete("/donations/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await donationsCollection.deleteOne(query);
+    });
+
+    app.put("/donations/:id", async (req, res) => {
+      const id = req.params.id;
+      const donation = req.body;
+      const query = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {},
+      };
+      const result = await donationsCollection.updateOne(query, updateDoc);
+
+      res.send(result);
+    });
+    app.get("/reviews", async (req, res) => {
+      const result = await reviewCollection.find().toArray();
       res.send(result);
     });
     // Send a ping to confirm a successful connection
