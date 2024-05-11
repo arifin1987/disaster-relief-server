@@ -55,9 +55,19 @@ async function run() {
       const donation = req.body;
       const query = { _id: new ObjectId(id) };
       const updateDoc = {
-        $set: {},
+        $set: {
+          image: donation.image,
+          title: donation.title,
+          category: donation.category,
+          amount: donation.amount,
+        },
       };
-      const result = await donationsCollection.updateOne(query, updateDoc);
+      const options = { upsert: true };
+      const result = await donationsCollection.updateOne(
+        query,
+        updateDoc,
+        options
+      );
 
       res.send(result);
     });
@@ -68,7 +78,7 @@ async function run() {
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
-      "Pinged your deployment. You successfully connected to MongoDB!"
+      "Pinged your deploymentyyy. You successfully connected to MongoDB!"
     );
   } finally {
     // Ensures that the client will close when you finish/error
